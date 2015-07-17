@@ -1,6 +1,14 @@
 # methylpipeline
 Simple wrapper for BWA-meth and IGV viewer for multi-sample methylation analysis
 
+# Quick Start
+
+1. Install dependencies below
+2. Create a folder 'input' in the same folder as this script. This should contain n subfolders, with each subfolder containing FASTA files for analysis (typically 2 paired samples). These must have a .fastq extension.
+3. Create a folder 'reference_genome'. Put a FASTA file here to be used as a reference.
+4. Create an empty folder called output/
+5. Edit the runbwameth.sh script to point to above files, and run the script.
+
 ############################################
 # Dependencies
 ############################################
