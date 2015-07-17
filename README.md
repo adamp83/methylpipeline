@@ -39,3 +39,7 @@ bwa-meth:
 * sudo python setup.py install
 * Should be able to run bwameth.py from the command line
 * Tested with master branch revision d5c6fd89eb from github
+
+Copies of BisSNP and IGV binaries are included in this repository. Further information can be found here:
+* BisSNP: http://people.csail.mit.edu/dnaase/bissnp2011/
+* IGV: https://www.broadinstitute.org/igv/
