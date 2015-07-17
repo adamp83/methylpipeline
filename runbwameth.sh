@@ -9,9 +9,9 @@
 
 # Define positions of the reference genome
 # This can be any fasta file, indexing is performed below
-REF=../input_files/reference_foxp3_3.fa
+REF=./reference_genome/reference_foxp3.fa
 
-# List samples. Each should be a folder within ../input_files containing 2 .fastq files
+# List samples. Each should be a folder within ./input containing 2 .fastq files
 SAMPLES="81-24966001 91-24966011 92-24966012"
 
 # Define bases to trim from 5' and 3' ends respectively
@@ -25,7 +25,7 @@ MAPQ=60
 # The BisSNP java package is a SNP caller designed for bisulfite methylation
 # See http://doi.org/10.1186/gb-2012-13-7-r61
 # This should point to the .jar file
-BISSNP=../software/BisSNP-0.82.2.jar
+BISSNP=./dependencies/BisSNP-0.82.2.jar
 
 ############################################
 # End of input
@@ -43,7 +43,7 @@ do
 	echo "Processing $SAMPLE"
 
   # Define the input directory and select all .fastq files in that directory
-  IPDIR=../input_files/$SAMPLE
+  IPDIR=./input/$SAMPLE
   echo $IPDIR
   FILES=$IPDIR/*.fastq
   echo $FILES
@@ -75,7 +75,7 @@ SAMPLES_STR=$(printf ",%s" "${ARR[@]}")
 SAMPLES_STR=${SAMPLES_STR:1}
 
 echo "Loading BAM viewer"
-./igv/igv.sh --genome $REF $SAMPLES_STR
+./dependencies/igv/igv.sh --genome $REF $SAMPLES_STR
 
 
 
