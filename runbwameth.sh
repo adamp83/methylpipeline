@@ -9,10 +9,19 @@
 
 # Define positions of the reference genome
 # This can be any fasta file, indexing is performed below
-REF=./reference_genome/reference_foxp3.fa
+REF=./reference_genome/reference.fa
 
 # List samples. Each should be a folder within ./input containing 2 .fastq files
-SAMPLES="81-24966001 91-24966011 92-24966012"
+# UPDATED TO COVER ALL FILES IN input/ DIRECTORY
+cd input
+SAMPLES=""
+for d in */ ; do
+    SAMPLES="$SAMPLES ${d:0:${#d}-1}"
+done
+cd ..
+echo $SAMPLES
+# If you want to use specific samples, uncomment this:
+#SAMPLES="81-24966001 91-24966011 92-24966012"
 
 # Define bases to trim from 5' and 3' ends respectively
 # Doesn't appear to affect results significantly...
