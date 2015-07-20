@@ -3,6 +3,9 @@
 # Run BWAmeth software to extract methylation data from reads.
 # Dependencies are listed below.
 
+# Ensure correct java runtime environment
+export JAVA_HOME=`/usr/libexec/java_home -v '1.6*'`
+
 ############################################
 # Input file definitions
 ############################################
