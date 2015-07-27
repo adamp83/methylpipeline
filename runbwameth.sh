@@ -70,6 +70,11 @@ do
   # Tabulate methylation -> produces .bed file
   bwameth.py tabulate --trim $TRIM --map-q $MAPQ --reference $REF --bissnp $BISSNP --prefix output/$SAMPLE -t 12 output/$SAMPLE.bam
 
+  # Create a SAM file from the produced BAM file
+  samtools view -h -o output/$SAMPLE.sam output/$SAMPLE.bam
+
+  # Use mpileup
+  samtools mpileup -v -u -o output/$SAMPLE.vcf -f reference_genome/reference.fa output/$SAMPLE.bam
 done
 wait
 
