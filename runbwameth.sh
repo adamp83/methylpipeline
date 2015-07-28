@@ -73,13 +73,13 @@ do
   # Create a SAM file from the produced BAM file
   samtools view -h -o output/$SAMPLE.sam output/$SAMPLE.bam
 
-  # Use mpileup
-  samtools mpileup -v -u -o output/$SAMPLE.vcf -f reference_genome/reference.fa output/$SAMPLE.bam
+  # Use mpileup - may be better than R method but not clear how to interpret data.
+#  samtools mpileup -v -u -o output/$SAMPLE.vcf -f reference_genome/reference.fa output/$SAMPLE.bam
 done
 wait
 
 # Open any generated .bed files
-open -e ./output/*.meth.bed
+#open -e ./output/*.meth.bed
 
 # Launch the IGV viewer to inspect BAM files
 # (comment this if you don't want to inspect the alignments)
@@ -91,8 +91,8 @@ ARR=( "${ARR[@]/#/output/}" )
 SAMPLES_STR=$(printf ",%s" "${ARR[@]}")
 SAMPLES_STR=${SAMPLES_STR:1}
 
-echo "Loading BAM viewer"
-./dependencies/igv/igv.sh --genome $REF $SAMPLES_STR
+#echo "Loading BAM viewer"
+#./dependencies/igv/igv.sh --genome $REF $SAMPLES_STR
 
 
 
