@@ -8,7 +8,9 @@ Wrapper for BWA aligner and IGV viewer for multi-sample methylation analysis
 3. Create a folder 'reference_genome'. Put a FASTA file here to be used as a reference - this should be called reference.fa by default.
 4. Run the methyl_analysis.R script:
 
-    Rscript methyl_analysis.R
+```
+Rscript methyl_analysis.R
+```
 
 Many outputs are created in the output/<sample_name> folder for each sample. These include:
 * Alignment data, stored in .bam files. These will be loaded in IGV viewer automatically.
