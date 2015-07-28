@@ -1,4 +1,18 @@
-# Analyse SAM files produced by runbwameth.sh
+#!/usr/bin/Rscript
+
+# All-in-one script to analyse methlation status of BiSEQ reads.
+# 
+# Required input files:
+# - A reference genome in FASTA format in the file reference_genome/reference.fa
+# - Input FASTA files for n samples. For each sample, put the read files (usually 2 .fastq files) in the directory input/<sample_name>. The script will recurse the input directory looking for .fastq files.
+# 
+# What this script does:
+# 1. Calls runbwameth.sh script, which uses BWA open source aligner to align reads and generates SAM files using samtools.
+# 2. Reads the CpG positions from the reference genome
+# 3. Counts how much overlap there is between reads and defines how many bases should be trimmed from the reads based on this.
+# 4. Creates a large matrix of base pairs with paired reads on the y-axis and reference positions on the x-axis
+# 5. Analyses methylation of the CpG islands by comparing C to T ratios. Outputs to an Excel file.
+# 6. Creates heatmaps to visualise this
 
 
 ##################################################
@@ -104,6 +118,7 @@ for(sam_file in sam_files){
   # Base this on the mean and SD of the overlaps
   if(is.na(trim)){
     trim <- round( (mean(overlaps$overlap) - 2* sd(overlaps$overlap)) / 2 )
+    trim <- max(trim, 0) # Don't allow negative trimming!
     print(paste("Trimming", trim, "bases from each read based on above values"))
   }
   
@@ -192,11 +207,11 @@ for(sam_file in sam_files){
       }
     }
   }
+  colnames(plotdata) <- cpgs
   
   
-  
+  # Write heatmaps to a PDF file
   pdf_file = gsub(".sam", "_heatmap.pdf", sam_file)
-  
   pdf(pdf_file)
   
   
@@ -206,8 +221,7 @@ for(sam_file in sam_files){
   }))
   plotdata <- plotdata[sel,]
   
-  # Make an unclustered heatmap
-  
+  # Make an unclustered heatmap first
   heatmap.2(as.matrix(plotdata),dendrogram="none",trace="none", margin=c(8,9), Rowv=F, Colv=F, key=F, labRow=F, main=paste(sam_file, "Unclustered:", dim(plotdata)[1], "reads"));
   
   
@@ -218,54 +232,29 @@ for(sam_file in sam_files){
   plotdata <- plotdata[sel,]
   
   
-  colnames(plotdata) <- cpgs
-  collab = data.frame(cpgs)
-  rownames(collab) <- cpgs
   
-  
-  
+  # Attempt to use pheatmap method - but does not respond well to NAs
   #pdf(pdf_file)
   #pheatmap(plotdata, treeheight_row=0, treeheight_col=0, cluster_cols=F, cluster_rows=F, annotation_col=collab, main=sam_file, scale="none", col=c("Red", "Green"))
   #dev.off()
   
-  #############
-  # Alternative plots
   
-  
-  
+  # Clustering using daisy method
   hclustfunc <- function(x) hclust(x, method="complete")
-  
-  # Initially I wanted to use this but it didn't take NA
-  #distfunc <- function(x) dist(x,method="euclidean")
-  
+    
   # Try using daisy GOWER function 
   # which suppose to work with NA value
   distfunc <- function(x) daisy(x,metric="gower")
   
-  # Make an unfiltered, unclustered heatmap first
-  
+  # Plot the heatmap
   plotdata <- apply(plotdata, 2, as.numeric)
   d <- distfunc(plotdata)
   fit <- hclustfunc(d)
   
   # Perform clustering heatmap
-  
   heatmap.2(as.matrix(plotdata),dendrogram="none",trace="none", margin=c(8,9), hclust=hclustfunc,distfun=distfunc, Colv=F, key=F, labRow=F, main=paste(sam_file, "clustered: ", dim(plotdata)[1], "reads"));
   dev.off()
   
-  
-#   library(reshape)
-#   library(ggplot2)
-#   
-#   #dat <- data.frame(weather=c("Rain","Hail","Sunny"), Germany = c(0,1,0), Italy = c(1,0,0))
-#   
-#   melt.data<-melt(plotdata, id.vars="read", variable_name="position")
-#   
-#   qplot(data=melt.data,
-#         x=position,
-#         y=read,
-#         fill=factor(value),
-#         geom="tile")+scale_fill_manual(values=c("0"="white", "1"="red"))
   
 }
 
