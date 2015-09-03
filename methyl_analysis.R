@@ -259,13 +259,28 @@ for(sam_file in sam_files){
   # which suppose to work with NA value
   distfunc <- function(x) daisy(x,metric="gower")
   
-  # Plot the heatmap
+  
   plotdata <- apply(plotdata, 2, as.numeric)
-  d <- distfunc(plotdata)
+  
+  # For clustering we need to avoid too many of the same number in each column in large data sets
+  # Therefore replace with random variation
+  # See: http://stackoverflow.com/questions/16559250/error-in-heatmap-2-gplots
+  plotdata2 <- plotdata
+  vary <- function(n){
+    if(is.na(n)){
+      return(NA)
+    }
+    runif(1, n-0.00001, n+0.00001)
+  }
+  plotdata2 <- apply(plotdata2, c(1,2), vary)
+  
+  
+  # Plot the heatmap
+  d <- distfunc(plotdata2)
   fit <- hclustfunc(d)
   
   # Perform clustering heatmap
-  heatmap.2(as.matrix(plotdata),dendrogram="none",trace="none", margin=c(8,9), hclust=hclustfunc,distfun=distfunc, Colv=F, key=F, labRow=F, main=paste(sam_file, "clustered: ", dim(plotdata)[1], "reads"));
+  heatmap.2(as.matrix(plotdata2),dendrogram="none",trace="none", margin=c(8,9), hclust=hclustfunc,distfun=distfunc, Colv=F, key=F, labRow=F, main=paste(sam_file, "clustered: ", dim(plotdata2)[1], "reads"));
   dev.off()
   
   
