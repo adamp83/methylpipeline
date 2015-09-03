@@ -59,6 +59,7 @@ sam_dir <- "./output"
 sam_files <- list.files(sam_dir, pattern=".sam", full.names=T)
 
 for(sam_file in sam_files){
+  print(paste("Analysing", sam_file))
   
   sam <- read.table(sam_file, fill=T, sep="\t")
   
@@ -90,7 +91,12 @@ for(sam_file in sam_files){
   # Defined as start of forward read (S1) + length of forward read (L1) - start of reverse read (S2)
   overlaps = data.frame(pair=pairs, s1=NA, l1=NA, s2=NA, overlap=NA)
   for(pair in pairs){
+    #print(paste("Analysing pair", pair))
+    
     reads <- sam[which(sam[,1] == pair),]
+    
+    
+    
     reads[,4] <- as.numeric(as.character(reads[,4]))
     mapq = as.numeric(as.character(reads[,5]))
     if(!all(mapq >= 60)){
@@ -99,6 +105,12 @@ for(sam_file in sam_files){
     read1 <- reads[which(reads[,4] == min(reads[,4])),]
     read2 <- reads[which(reads[,4] == max(reads[,4])),]
     
+    # If there are duplicates, ignore this pair
+    if(dim(read1)[1] > 1 | dim(read2)[1] > 1){
+      print("SKIPPING READ DUE TO DUPLICATE")
+      next
+    }
+    
     sam$direction[which(rownames(sam) == rownames(read1))] = 1
     sam$direction[which(rownames(sam) == rownames(read2))] = -1
     
@@ -106,6 +118,7 @@ for(sam_file in sam_files){
     s1 <- read1[,4]
     s2 <- read2[,4]
     l1 <- nchar(as.character(read1[,10]))
+    
     overlaps[o_sel,]$s1 <- s1
     overlaps[o_sel,]$s2 <- s2
     overlaps[o_sel,]$l1 <- l1
