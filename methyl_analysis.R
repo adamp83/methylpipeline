@@ -38,6 +38,14 @@ user_trim <- !is.na(trim)
 system("./runbwameth.sh")
 
 
+# Install required packages if required
+list.of.packages <- c("stringr", "WriteXLS", 'pheatmap', 'gplots', 'cluster')
+new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
+if(length(new.packages) > 0) {
+  source("http://bioconductor.org/biocLite.R")
+  biocLite(new.packages)
+}
+
 library(stringr)
 library(WriteXLS)
 library(pheatmap)
