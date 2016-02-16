@@ -60,6 +60,10 @@ ref <- scan(ref_file, what=character())[2]
 # Pick out the CpG islands
 cpgs <- str_locate_all(ref, "CG")[[1]][,1]
 
+if(length(cpgs) == 0){
+  print("ERROR: NO CpG ISLANDS IN REFERENCE GENOME")
+}
+
 outputs <- list()
 
 # Read in SAM files
@@ -132,16 +136,24 @@ for(sam_file in sam_files){
     overlaps[o_sel,]$l1 <- l1
     overlaps[o_sel,]$overlap <- s1 + l1 - s2
   }
-  overlaps = overlaps[which(!is.na(overlaps$overlap)),]
-  print(paste("Read overlaps: mean", mean(overlaps$overlap), ", SD", sd(overlaps$overlap)))
-  
-  # Figure out a trim value, if not set
-  # Base this on the mean and SD of the overlaps
-  if(is.na(trim)){
-    trim <- round( (mean(overlaps$overlap) - 2* sd(overlaps$overlap)) / 2 )
-    trim <- max(trim, 0) # Don't allow negative trimming!
-    print(paste("Trimming", trim, "bases from each read based on above values"))
+  if(dim(overlaps)[1] == 0){
+    # Don't trim at all if there aren't any overlapping bases
+    if(is.na(trim)){
+      trim <- 0
+    }
+  }else{
+    overlaps = overlaps[which(!is.na(overlaps$overlap)),]
+    print(paste("Read overlaps: mean", mean(overlaps$overlap), ", SD", sd(overlaps$overlap)))
+    
+    # Figure out a trim value, if not set
+    # Base this on the mean and SD of the overlaps
+    if(is.na(trim)){
+      trim <- round( (mean(overlaps$overlap) - 2* sd(overlaps$overlap)) / 2 )
+      trim <- max(trim, 0) # Don't allow negative trimming!
+      print(paste("Trimming", trim, "bases from each read based on above values"))
+    }
   }
+  
   
   
   for(pair in pairs){
@@ -231,15 +243,19 @@ for(sam_file in sam_files){
   colnames(plotdata) <- cpgs
   
   
-  # Write heatmaps to a PDF file
-  pdf_file = gsub(".sam", "_heatmap.pdf", sam_file)
-  pdf(pdf_file)
-  
-  
   # Get rid of rows which have no data:
   sel <- which(apply(plotdata, 1, function(x){
     !all(is.na(x))
   }))
+  if(length(sel) == 0){
+    print("No coverage. Moving to next sample.")
+    next
+  }
+  
+  # Write heatmaps to a PDF file
+  pdf_file = gsub(".sam", "_heatmap.pdf", sam_file)
+  pdf(pdf_file)
+  
   plotdata <- plotdata[sel,]
   
   # Make an unclustered heatmap first
